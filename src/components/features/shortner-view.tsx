@@ -2,28 +2,17 @@
 
 import { Close } from '@/assets/close';
 import { API, BASE_URL } from '@/constants/base-url';
-import { usePathname, useRouter } from 'next/navigation';
 import { Fragment, useState } from 'react';
 
 export function ShortnerView() {
   const [inputVal, setInputVal] = useState<string>('');
   const [id, setID] = useState<string>('');
-  const router = useRouter();
-  const pathname = usePathname();
-  console.log('router', router, pathname);
-
-  // useEffect(() => {
-  //   // console.log('use');
-  //   let time = setTimeout(() => {
-  //     handleChange();
-  //   }, 2000);
-  //   return () => {
-  //     clearTimeout(time);
-  //   };
-  // }, [inputVal]);
+  const [loading, setLoading] = useState(false);
+  const [copy, setCopy] = useState(false);
 
   async function handleChange() {
     console.log('input');
+    setLoading(true);
     const res = await fetch(API.URL, {
       method: 'POST',
       body: JSON.stringify({ url: inputVal }),
@@ -31,6 +20,7 @@ export function ShortnerView() {
     });
     const finalRes = await res.json();
     setID(finalRes?.id);
+    setLoading(false);
     console.log('finalRes', finalRes);
   }
 
@@ -51,7 +41,6 @@ export function ShortnerView() {
       console.error('Error copying to clipboard:', error);
     }
   };
-  console.log('url', BASE_URL + API.URL + `/${id}`);
   return (
     <Fragment>
       <div className='flex justify-center  w-full h-full pt-[10rem] sm:pt-[20rem]'>
@@ -60,12 +49,9 @@ export function ShortnerView() {
             type='text'
             className='w-[30rem] sm:w-[50rem] h-[4.8rem] pr-[4rem] bg-white rounded-[.8rem] focus-visible:outline-none focus-visible:ring-fuchsia-600 active:ring-fuchsia-600 active:ring-2 focus-visible:ring-2 p-[1rem] text-fuchsia-600 text-[1.4rem]'
             onChange={e => {
-              // console.log('e-key', e?.key);
-
               setInputVal(e.target.value);
             }}
             onKeyDown={e => {
-              console.log('e-key', e.key);
               if (e.key === 'Enter') {
                 console.log('enter');
                 handleChange();
@@ -84,20 +70,31 @@ export function ShortnerView() {
           />
         </div>
       </div>
-      {id !== '' && (
-        <>
-          <div className='flex justify-center flex-wrap items-center w-[30rem] sm:w-[50rem] h-[20rem] mx-auto mt-[1rem] text-[1.6rem] bg-white rounded-[.8rem]'>
-            <p className='px-[2rem]'>{BASE_URL + API.URL + `/${id}`}</p>
-            <button
-              onClick={() => {
-                handleCopy(BASE_URL + API.URL + `/${id}`);
-              }}
-            >
-              copy
-            </button>
-          </div>
-        </>
-      )}
+      <div className='flex flex-col gap-[.8rem] justify-center flex-wrap items-center w-[30rem] sm:w-[50rem] h-[20rem] mx-auto mt-[1rem] text-[1.6rem] bg-white rounded-[.8rem]'>
+        {loading ? (
+          <p>loading....</p>
+        ) : (
+          <>
+            <p className='px-[2rem]'>
+              {id === '' ? 'Please upload your url' : BASE_URL + API.URL + `/${id}`}
+            </p>
+            {id !== '' && (
+              <button
+                onClick={() => {
+                  handleCopy(BASE_URL + API.URL + `/${id}`);
+                  setCopy(true);
+                  setTimeout(() => {
+                    setCopy(false);
+                  }, 1000);
+                }}
+                className='p-[1rem] hover:bg-fuchsia-200/70  rounded-[.8rem]'
+              >
+                {copy ? 'copied' : 'copy'}
+              </button>
+            )}
+          </>
+        )}
+      </div>
     </Fragment>
   );
 }
