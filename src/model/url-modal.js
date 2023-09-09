@@ -9,5 +9,5 @@ const urlSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const URL = mongoose.model.url || mongoose.model('url', urlSchema);
+const URL = mongoose.models.url || mongoose.model('url', urlSchema);
 export default URL;

@@ -18,7 +18,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       { $push: { visitHistory: { timestamp: Date.now() } } },
     );
     console.log('entry', entry);
-    return NextResponse.redirect(entry.redirect);
+    if (!entry) {
+      return NextResponse.json({ message: 'URL not found', status: 404 });
+    }
+    return NextResponse.redirect(entry.redirectedURL);
   } catch (error: any) {
     return NextResponse.json({ error: error.message, status: 500 });
   }
