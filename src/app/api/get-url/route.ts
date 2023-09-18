@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, route: { params: { shortId: string }
     }
 
     const shortId = route.params.shortId;
-    const id = await URL.findOndAndUpdate({ shortId }, { $push: { visitHistory: Date.now() } });
+    const id = await URL.findOneAndUpdate({ shortId }, { $push: { visitHistory: Date.now() } });
     console.log('id', id);
   } catch (error: any) {
     return NextResponse.json({ error: error.message, status: 500 });
